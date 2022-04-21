@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 import numpy as np
 import re
 import cv2
+import glob
 #https://stackoverflow.com/questions/51434091/python-globbing-a-directory-of-images
 
 def get_distortions(data):
@@ -18,16 +19,19 @@ def get_distortions(data):
 	distCoeffs = np.array(b_unique)
 	return cameraMatrix, distCoeffs
 
+def correct_image(image, data):
+	if "." in image:
+		image_name, imageext = image.split(".")
+		cameraMatrix, distCoeffs = get_distortions(data)
+		image_dist = cv2.imread(image_name + '.' +imageext)
+		h, w = image_dist.shape[:2]
+		cameraMatrixNew, roi = cv2.getOptimalNewCameraMatrix(cameraMatrix, distCoeffs, (w, h), 1, (w, h))
+		map1, map2 = cv2.initUndistortRectifyMap(cameraMatrix, distCoeffs, None, cameraMatrixNew, (w, h), cv2.CV_32FC1)
+		image_undist = cv2.remap(image_dist, map1, map2, cv2.INTER_LINEAR)
+		cv2.imwrite(image_name + "-improved." + imageext, image_undist)
+
 with open('intrinsics.xml', 'r') as f:
 	data = f.read()
 
-cameraMatrix, distCoeffs = get_distortions(data)
-image_name = 'aat'
-imageext = '.png'
-image_dist = cv2.imread(image_name + imageext)
-h, w = image_dist.shape[:2]
-cameraMatrixNew, roi = cv2.getOptimalNewCameraMatrix(cameraMatrix, distCoeffs, (w, h), 1, (w, h))
-map1, map2 = cv2.initUndistortRectifyMap(cameraMatrix, distCoeffs, None, cameraMatrixNew, (w, h), cv2.CV_32FC1)
-image_undist = cv2.remap(image_dist, map1, map2, cv2.INTER_LINEAR)
-
-cv2.imwrite(image_name + "-improved" + imageext, image_undist)
+	for image in  glob.glob("*[!improved].png"):
+		correct_image(image, data)

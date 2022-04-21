@@ -3,6 +3,14 @@
 import cv2
 import numpy as np
 import glob
+import os.path
+import sys
+
+if len(sys.argv) < 2 or not os.path.isfile(sys.argv[1]):
+    print("give image name that contains checkerboard")
+    quit()
+
+
 
 # setup termination criteria for cornerSubPix()
 criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
@@ -16,25 +24,23 @@ objpoints = [] # 3d point in real world space
 imgpoints = [] # 2d points in image plane
 
 # gather filenames of images in folder
-images = glob.glob('checker.png')
+images = glob.glob(sys.argv[1])
 
 # loop over images in folder and create chessboard corners
-for fname in images:
-    print(fname)
-    image = cv2.imread(fname)
-    gray = cv2.split(image)[0]
+# for fname in images:
+image = cv2.imread(images[0])
+gray = cv2.split(image)[0]
 
-    ret, corners = cv2.findChessboardCorners(gray, (7, 7), None)
+ret, corners = cv2.findChessboardCorners(gray, (7, 7), None)
 
-    if ret == True:
-        objpoints.append(objp)
-        corners_SubPix = cv2.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
-        imgpoints.append(corners_SubPix)
-        print("Return value: ", ret)
-        img = cv2.drawChessboardCorners(gray, (7, 7), corners_SubPix, ret)
-        cv2.imshow("Corners", img)
-        cv2.waitKey(5000)
-cv2.destroyAllWindows()
+if ret == True:
+    objpoints.append(objp)
+    corners_SubPix = cv2.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
+    imgpoints.append(corners_SubPix)
+else:
+    print("could not find the checkers, quiting!")
+    quit()
+
 
 # calibrate camera: cameraMatrix = 3x3 camera intrinsics matrix; distCoeffs = 5x1 vector
 # gray.shape[::-1] swaps single channel image values from h, w to w, h (numpy to OpenCV format)
