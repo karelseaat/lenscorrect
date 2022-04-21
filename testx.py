@@ -16,7 +16,7 @@ objpoints = [] # 3d point in real world space
 imgpoints = [] # 2d points in image plane
 
 # gather filenames of images in folder
-images = glob.glob('nogeenchecker.png')
+images = glob.glob('checker.png')
 
 # loop over images in folder and create chessboard corners
 for fname in images:

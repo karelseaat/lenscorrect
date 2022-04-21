@@ -22,7 +22,7 @@ with open('intrinsics.xml', 'r') as f:
 	data = f.read()
 
 cameraMatrix, distCoeffs = get_distortions(data)
-image_name = 'sample'
+image_name = 'aat'
 imageext = '.png'
 image_dist = cv2.imread(image_name + imageext)
 h, w = image_dist.shape[:2]
