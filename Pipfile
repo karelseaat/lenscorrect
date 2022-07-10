@@ -8,6 +8,7 @@ numpy = "*"
 opencv-python = "*"
 bs4 = "*"
 lxml = "*"
+pylint = "*"
 
 [dev-packages]
 

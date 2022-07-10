@@ -1,16 +1,14 @@
 #!/usr/bin/env python
 
-import cv2
-import numpy as np
 import glob
 import os.path
 import sys
+import cv2
+import numpy as np
 
 if len(sys.argv) < 2 or not os.path.isfile(sys.argv[1]):
     print("give image name that contains checkerboard")
     quit()
-
-
 
 # setup termination criteria for cornerSubPix()
 criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
@@ -33,7 +31,7 @@ gray = cv2.split(image)[0]
 
 ret, corners = cv2.findChessboardCorners(gray, (7, 7), None)
 
-if ret == True:
+if ret:
     objpoints.append(objp)
     corners_SubPix = cv2.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
     imgpoints.append(corners_SubPix)
@@ -44,7 +42,9 @@ else:
 
 # calibrate camera: cameraMatrix = 3x3 camera intrinsics matrix; distCoeffs = 5x1 vector
 # gray.shape[::-1] swaps single channel image values from h, w to w, h (numpy to OpenCV format)
-retval, cameraMatrix, distCoeffs, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
+retval, cameraMatrix, distCoeffs, rvecs, tvecs = cv2.calibrateCamera(
+    objpoints, imgpoints, gray.shape[::-1], None, None
+)
 
 # persist intrinsics and distortions
 fs = cv2.FileStorage("intrinsics.xml", cv2.FileStorage_WRITE)
